@@ -63,6 +63,34 @@ build CMakeFiles/hello_metal.dir/metalChecks.cpp.o: CXX_COMPILER__hello_metal_un
   OBJECT_DIR = CMakeFiles/hello_metal.dir
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
 
+build CMakeFiles/hello_metal.dir/boilerplate_example.cpp.o: CXX_COMPILER__hello_metal_unscanned_Debug /Users/cameronmceleney/CLionProjects/hello_metal/boilerplate_example.cpp || cmake_object_order_depends_target_hello_metal
+  DEP_FILE = CMakeFiles/hello_metal.dir/boilerplate_example.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
+  INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
+  OBJECT_DIR = CMakeFiles/hello_metal.dir
+  OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
+
+build CMakeFiles/hello_metal.dir/app_delegate.cpp.o: CXX_COMPILER__hello_metal_unscanned_Debug /Users/cameronmceleney/CLionProjects/hello_metal/app_delegate.cpp || cmake_object_order_depends_target_hello_metal
+  DEP_FILE = CMakeFiles/hello_metal.dir/app_delegate.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
+  INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
+  OBJECT_DIR = CMakeFiles/hello_metal.dir
+  OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
+
+build CMakeFiles/hello_metal.dir/view_delegate.cpp.o: CXX_COMPILER__hello_metal_unscanned_Debug /Users/cameronmceleney/CLionProjects/hello_metal/view_delegate.cpp || cmake_object_order_depends_target_hello_metal
+  DEP_FILE = CMakeFiles/hello_metal.dir/view_delegate.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
+  INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
+  OBJECT_DIR = CMakeFiles/hello_metal.dir
+  OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
+
+build CMakeFiles/hello_metal.dir/renderer.cpp.o: CXX_COMPILER__hello_metal_unscanned_Debug /Users/cameronmceleney/CLionProjects/hello_metal/renderer.cpp || cmake_object_order_depends_target_hello_metal
+  DEP_FILE = CMakeFiles/hello_metal.dir/renderer.cpp.o.d
+  FLAGS = -g -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
+  INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/metal-cpp/metal-cpp-extensions/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
+  OBJECT_DIR = CMakeFiles/hello_metal.dir
+  OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target hello_metal
@@ -71,7 +99,7 @@ build CMakeFiles/hello_metal.dir/metalChecks.cpp.o: CXX_COMPILER__hello_metal_un
 #############################################
 # Link the executable hello_metal
 
-build hello_metal: CXX_EXECUTABLE_LINKER__hello_metal_Debug CMakeFiles/hello_metal.dir/main.cpp.o CMakeFiles/hello_metal.dir/metalChecks.cpp.o
+build hello_metal: CXX_EXECUTABLE_LINKER__hello_metal_Debug CMakeFiles/hello_metal.dir/main.cpp.o CMakeFiles/hello_metal.dir/metalChecks.cpp.o CMakeFiles/hello_metal.dir/boilerplate_example.cpp.o CMakeFiles/hello_metal.dir/app_delegate.cpp.o CMakeFiles/hello_metal.dir/view_delegate.cpp.o CMakeFiles/hello_metal.dir/renderer.cpp.o
   FLAGS = -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3
   LINK_LIBRARIES = -Xlinker -framework -Xlinker Metal  -Xlinker -framework -Xlinker Foundation  -Xlinker -framework -Xlinker QuartzCore  -lc++  -lc++abi
   OBJECT_DIR = CMakeFiles/hello_metal.dir

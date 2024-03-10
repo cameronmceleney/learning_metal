@@ -5,8 +5,9 @@
 #ifndef HELLO_METAL_METALCHECKS_H
 #define HELLO_METAL_METALCHECKS_H
 
+#include "config.h"
+
 #include <iostream>
-#include "Metal.hpp"
 
 class metalChecks {
 public:

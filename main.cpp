@@ -8,14 +8,15 @@
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
-#include <Foundation.hpp>
-#include <Metal.hpp>
-#include <QuartzCore.hpp>
-#include <AppKit.hpp>
+#define MTK_PRIVATE_IMPLEMENTATION
 
+// Local
 #include "metalChecks.h"
+#include "boilerplate_example.h"
 
 int main() {
-    metalChecks::checkForDevice();
+    //metalChecks::checkForDevice();
+    BoilerPlateExample::run();
+    //metalChecks::checkForDevice();
     return 0;
 }

@@ -27,6 +27,15 @@ include_directories(${METAL_CPP_EXT_DIR}/MetalKit)
 add_executable(hello_metal main.cpp
         metalChecks.cpp
         metalChecks.h
+        boilerplate_example.cpp
+        boilerplate_example.h
+        app_delegate.cpp
+        app_delegate.h
+        view_delegate.cpp
+        view_delegate.h
+        config.h
+        renderer.cpp
+        renderer.h
 )
 
 set(USER_FLAGS c++ c++abi)
