@@ -62,7 +62,7 @@ To prevent this, you normally create an `AutoreleasePool` in your program's `mai
 
 Use the Environment Variable `OBJC_DEBUG_MISSING_POOLS=YES` to print a runtime warning when an autoreleased object is leaked because no enclosing `AutoreleasePool` is available for its thread.
 
-You can also run `leaks --autoreleasePools` on a memgraph file or a process ID (macOS only) to view a listing of your program's `AutoreleasePool`s and all objects they contain.
+You can also generateSquare `leaks --autoreleasePools` on a memgraph file or a process ID (macOS only) to view a listing of your program's `AutoreleasePool`s and all objects they contain.
 
 ### NS::SharedPtr
 

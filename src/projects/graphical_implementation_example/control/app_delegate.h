@@ -5,7 +5,7 @@
 #ifndef HELLO_METAL_APP_DELEGATE_H
 #define HELLO_METAL_APP_DELEGATE_H
 
-#include "config.h"
+#include "../../../../lib/config.h"
 #include <iostream>
 #include "view_delegate.h"
 

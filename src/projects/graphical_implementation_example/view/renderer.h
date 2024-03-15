@@ -5,7 +5,7 @@
 #ifndef HELLO_METAL_RENDERER_H
 #define HELLO_METAL_RENDERER_H
 
-#include "config.h"
+#include "../../../../lib/config.h"
 #include <iostream>
 
 class Renderer {

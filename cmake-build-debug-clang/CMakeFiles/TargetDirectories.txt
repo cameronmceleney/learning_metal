@@ -1,3 +1,4 @@
 /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-debug-clang/CMakeFiles/hello_metal.dir
+/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-debug-clang/CMakeFiles/CompileMetalShader.dir
 /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-debug-clang/CMakeFiles/edit_cache.dir
 /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-debug-clang/CMakeFiles/rebuild_cache.dir

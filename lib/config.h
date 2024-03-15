@@ -6,10 +6,11 @@
 #define HELLO_METAL_CONFIG_H
 
 // Core libraries from metal-cpp
-#include <AppKit.hpp>
-#include <Foundation.hpp>
-#include <Metal.hpp>
-#include <MTKView.hpp>
-#include <QuartzCore.hpp>
+#include "AppKit.hpp"
+#include "Foundation.hpp"
+#include "Metal.hpp"
+#include "MTKView.hpp"
+#include "QuartzCore.hpp"
+#include "MetalKit.hpp"
 
 #endif //HELLO_METAL_CONFIG_H

@@ -118,7 +118,7 @@ _APPKIT_PRIVATE_DEF_SEL( activateIgnoringOtherApps_,
 						"activateIgnoringOtherApps:" );
 
 _APPKIT_PRIVATE_DEF_SEL( run,
-						"run" );
+						"generateSquare" );
 
 _APPKIT_PRIVATE_DEF_SEL( terminate_,
 						"terminate:" );

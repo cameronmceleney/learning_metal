@@ -2,9 +2,9 @@
 // Created by Cameron Aidan McEleney on 08/03/2024.
 //
 
-#include "metalChecks.h"
+#include "check_for_metal_device.h"
 
-void metalChecks::checkForDevice() {
+void DeviceChecks::checkForDevice() {
     MTL::Device *pDevice = MTL::CreateSystemDefaultDevice();
 
     if ( pDevice ) {

@@ -1,4 +1,5 @@
 /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/aarch64/ninja -DCMAKE_C_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang -DCMAKE_CXX_COMPILER=/Library/Developer/CommandLineTools/usr/bin/clang -G Ninja -S /Users/cameronmceleney/CLionProjects/hello_metal -B /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang
+-- CMAKE_CURRENT_BINARY_DIR: /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang
 -- Configuring done (0.0s)
 -- Generating done (0.0s)
 -- Build files have been written to: /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang

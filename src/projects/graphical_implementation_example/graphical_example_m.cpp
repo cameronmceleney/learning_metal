@@ -3,9 +3,9 @@
 // Created by Cameron Aidan McEleney on 10/03/2024.
 //
 
-#include "boilerplate_example.h"
+#include "graphical_example_m.h"
 
-void BoilerPlateExample::run() {
+void GraphicalExamples::generateSquare() {
 
     bool useExample = false;
 

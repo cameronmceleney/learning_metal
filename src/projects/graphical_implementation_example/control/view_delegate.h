@@ -5,8 +5,8 @@
 #ifndef HELLO_METAL_VIEW_DELEGATE_H
 #define HELLO_METAL_VIEW_DELEGATE_H
 
-#include "config.h"
-#include "renderer.h"
+#include "../../../../lib/config.h"
+#include "../view/renderer.h"
 
 class ViewDelegate : public MTK::ViewDelegate {
 public:
