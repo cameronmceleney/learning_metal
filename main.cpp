@@ -17,20 +17,38 @@
 #include "src/projects/compute_function_examples/compute_function_examples.h"
 
 // Include here for ease while building program
+#include <random>
 #include <vector>
 
+std::vector<float> getRandomVector(size_t size) {
+    std::vector<float> vec(size);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+
+    for (auto& el : vec) {
+        el = static_cast<float>(dis(gen));
+    }
+
+    return vec;
+}
+
 int main() {
-    DeviceChecks::checkForDevice();
+    //DeviceChecks::checkForDevice();
+    DeviceChecks::printDeviceInfo();
     //GraphicalExamples::generateSquare();
 
-    // Written explicitly so I can check the results by hand
-    std::vector<float> vec1{0.0, 5.0, 4.0, 9.0, 11.0};
-    std::vector<float> vec2{3.0, 5.0, 14.0, 2.0, 99.0};
-    std::vector<float> resultVec(vec1.size(), 0.0);
-    ArrayAdder::addArrays(vec1, vec2, resultVec);
-    for (auto val: resultVec){
-        std::cout << val << ", ";
-    }
+    // Written explicitly so I can check the results by hand. Keep below 1 billion elements without chunking!
+    const size_t vectorSize = 200000000; // 1 million elements
+    std::vector<float> vec1 = getRandomVector(vectorSize);
+    std::vector<float> vec2 = getRandomVector(vectorSize);
+    std::cout << "len vec1: " << vec1.size() << " ! len vec2: " << vec2.size() << std::endl;
+    std::vector<float> resultGPU(vec1.size());
+    std::vector<float> resultCPU(vec1.size());
+
+    ArrayAdder::addArraysComplexCPU(vec1, vec2, resultCPU);
+    ArrayAdder::addArraysGPU(vec1, vec2, resultGPU, true);
+
     //ComputeFunctionExamples computeFunctionExamples;
     //computeFunctionExamples.sumSimpleVectors();
     return 0;

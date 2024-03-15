@@ -12,6 +12,7 @@
 class DeviceChecks {
 public:
     static void checkForDevice();
+    static void printDeviceInfo();
 };
 
 
