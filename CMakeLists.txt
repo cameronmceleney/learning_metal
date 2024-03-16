@@ -146,7 +146,7 @@ target_link_libraries(${PROJECT_NAME}
 ################################################################
 
 # Optional: Uncomment for optimisation (-O2 and -O3 being most common for me)
-# target_compile_options(SpinChains PRIVATE -O2)
+# target_compile_options(${PROJECT_NAME} PRIVATE -O2)
 
 ################################################################
 

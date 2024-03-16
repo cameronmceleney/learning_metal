@@ -19,9 +19,9 @@ public:
     static void addArraysCPU(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC);
 
     static void addArraysComplexCPU(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC);
-    static void addArraysGPUWithChunking(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC, bool complexAddition);
-private:
-    void processChunkOnGPU(const std::vector<float>& chunkA, const std::vector<float>& chunkB, std::vector<float>& chunkC, bool complexAddition);
+
+    static void addArraysGpuAsyncWithChunking(const std::vector<float>& inA, const std::vector<float>& inB,
+                                       std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
 
 private:
     struct Timer {
