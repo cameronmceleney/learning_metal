@@ -26,7 +26,9 @@ void DeviceChecks::printDeviceInfo() {
     auto device = MTL::CreateSystemDefaultDevice();
 
     std::cout << "Name: " << device->name()->utf8String() << std::endl;
-    std::cout << "Max Threads Per Threadgroup: " << device->maxThreadsPerThreadgroup().depth << std::endl;
+    std::cout << "Max Threads Per Threadgroup (height, width, depth): (" << device->maxThreadsPerThreadgroup().height
+              << ", " << device->maxThreadsPerThreadgroup().width << ", " << device->maxThreadsPerThreadgroup().depth
+              << ")" << std::endl;
 
     // Metal doesn't expose cache sizes or total memory directly.
     // Demonstrating maxBufferLength as an example of accessible property.

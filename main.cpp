@@ -35,11 +35,11 @@ std::vector<float> getRandomVector(size_t size) {
 
 int main() {
     // DeviceChecks::checkForDevice();
-    DeviceChecks::printDeviceInfo();
-    //GraphicalExamples::generateSquare();
+    // DeviceChecks::printDeviceInfo();
+    // GraphicalExamples::generateSquare();
 
     // Written explicitly so I can check the results by hand. Keep below 1 billion elements without chunking!
-    const size_t vectorSize = static_cast<int>(1e9); // 1 million elements
+    const size_t vectorSize = static_cast<int>(583715353);
     std::vector<float> vec1 = getRandomVector(vectorSize);
     std::vector<float> vec2 = getRandomVector(vectorSize);
     std::cout << "len vec1: " << vec1.size() << " ! len vec2: " << vec2.size() << std::endl;
@@ -47,9 +47,10 @@ int main() {
     std::vector<float> resultCPU(vec1.size());
 
     ArrayAdder::addArraysComplexCPU(vec1, vec2, resultCPU);
-    //ArrayAdder::addArraysGPU(vec1, vec2, resultGPU, true);
+    // ArrayAdder::addArraysGPU(vec1, vec2, resultGPU, true);
     // ArrayAdder::addArraysGpuWithChunking(vec1, vec2, resultGPU, true, false);
     ArrayAdder arrayAdder;
+    arrayAdder.lengthVector = vectorSize;
     arrayAdder.addArraysGpuChunkingDynamicBufferAsync(vec1, vec2, resultGPU, true, false);
 
     //ComputeFunctionExamples computeFunctionExamples;

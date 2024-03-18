@@ -321,10 +321,56 @@ Example Calculation for Small and Large Vectors:
 }
 
 void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
-    semaphoreAsync = dispatch_semaphore_create(10); // Allows up to 5 buffers to be processed asynchronously.
-    maxChunkSizeAsync = static_cast<int>(1e7);
-
     deviceAsync = MTL::CreateSystemDefaultDevice();
+
+    semaphoreAsync = dispatch_semaphore_create(6); // Allows up to N buffers to be processed asynchronously.
+
+    /*
+     * Selecting chunk size (made easy)
+     *      1. Get the vector's length
+     *      2. Divide the vector by 32 (this is threadExecutionWith)
+     *          a. If this result is not an int, decrement the variable holding the vector-length and continue until an
+     *          int result is found
+ *          3. Take the result and divide by 1024 (this is maxThreadsPerGroup)
+     */
+    if (lengthVector <= 0) { std::exit(1); }
+
+    const int threadExecutionWidth = 32;
+    const int maxThreadsPerGroup = static_cast<int>(deviceAsync->maxThreadsPerThreadgroup().height);
+    // Find the largest possible value X where X / 32 is an integer, starting with X = lengthOfVector.
+    size_t X = lengthVector - (lengthVector % threadExecutionWidth);
+
+    // Divide the used X/32 result by 1024, and repeat the process
+    // (if X/32/1024 is not an integer then move onto 1023 etc)
+    int threadsPerGroup = maxThreadsPerGroup;
+    while (X % (threadExecutionWidth * threadsPerGroup) != 0 && threadsPerGroup > 0) {
+        threadsPerGroup -= 1;
+    }
+
+    // Resulting values to use
+    maxChunkSizeAsync = threadExecutionWidth * threadsPerGroup;
+    size_t numChunks = X / maxChunkSizeAsync;
+
+    // std::cout << "threadsPerGroup: " << threadsPerGroup << std::endl;
+    // std::cout << "Chunk Size: " << maxChunkSizeAsync << std::endl;
+    // std::cout << "Number of Chunks: " << numChunks << std::endl;
+
+    if (maxChunkSizeAsync > static_cast<int>(deviceAsync->maxArgumentBufferSamplerCount())) {
+        std::cout << "Calculated number of chunks is larger than MaxArgumentBufferSamplerCount" << std::endl;
+        exit(1);
+    }
+
+    if (static_cast<int>(maxChunkSizeAsync * sizeof(float)) > static_cast<int>(deviceAsync->maxBufferLength())) {
+        // Assume we are using floats for now
+        std::cout << "Each chunk has a ByteSize that is larger than maxBufferLength" << std::endl;
+        exit(1);
+    }
+
+    if ( sizeof(float) * threadsPerGroup > static_cast<int>(deviceAsync->maxThreadgroupMemoryLength())) {
+        std::cout << "Total shared memory of Thread Groups is larger than maxThreadGroupsMemoryLane" << std::endl;
+        exit(1);
+    }
+
     commandQueueAsync = deviceAsync->newCommandQueue();
 
     auto libraryPath = NS::String::string(METAL_SHADER_METALLIB_PATH, NS::UTF8StringEncoding);
@@ -333,7 +379,7 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
     computePipelineStateAsync = deviceAsync->newComputePipelineState(kernelFunction, &errorAsync);
 
     // Initialize a pool of buffers for asynchronous processing.
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < numSemaphores; ++i) {
         // 10 buffers for a pool, allowing 5 in use and 5 being prepared.
         bufferPoolAsync.push_back(deviceAsync->newBuffer(maxChunkSizeAsync * sizeof(float), MTL::ResourceStorageModeShared));
     }
@@ -380,8 +426,9 @@ void ArrayAdder::processChunks(const std::vector<float>& inA, const std::vector<
         computeCommandEncoder->endEncoding();
 
         commandBuffer->addCompletedHandler(^(MTL::CommandBuffer*){
-            // Upon completion, copy data from the output buffer to the CPU.
+            // Upon completion of the GPU for this iteration
             if (onlyOutputToCpu) {
+                // copy data from the output buffer to the CPU.
                 memcpy(outC.data() + start, outputBuffer->contents(), currentChunkSize * sizeof(float));
             }
             // Signal that this buffer is now free for reuse.
@@ -407,7 +454,7 @@ void ArrayAdder::addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>
     gpuTimer.print();
 
     // Wait for all GPU tasks to complete before releasing resources.
-    for (int i = 0; i < 10; ++i) { // Assuming up to 5 buffers can be processed in parallel.
+    for (int i = 0; i < numSemaphores; ++i) { // Assuming up to 5 buffers can be processed in parallel.
         dispatch_semaphore_wait(semaphoreAsync, DISPATCH_TIME_FOREVER);
     }
 

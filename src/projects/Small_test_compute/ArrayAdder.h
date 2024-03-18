@@ -25,6 +25,8 @@ public:
     void addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>& inA, const std::vector<float>& inB,
                                                         std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
 
+    int lengthVector = -1;
+
 private:
     dispatch_semaphore_t semaphoreAsync;
     MTL::Device* deviceAsync;
@@ -39,6 +41,8 @@ private:
     void processChunks(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
     MTL::Buffer* getNextBuffer();
     NS::Error* errorAsync = nullptr;
+
+    const int numSemaphores = 12;
 
 private:
     struct Timer {
