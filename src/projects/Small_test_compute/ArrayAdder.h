@@ -20,8 +20,25 @@ public:
 
     static void addArraysComplexCPU(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC);
 
-    static void addArraysGpuAsyncWithChunking(const std::vector<float>& inA, const std::vector<float>& inB,
-                                       std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
+    static void addArraysGpuWithChunking( const std::vector<float>& inA, const std::vector<float>& inB,
+                                          std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
+    void addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>& inA, const std::vector<float>& inB,
+                                                        std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
+
+private:
+    dispatch_semaphore_t semaphoreAsync;
+    MTL::Device* deviceAsync;
+    MTL::CommandQueue* commandQueueAsync;
+    MTL::ComputePipelineState* computePipelineStateAsync;
+    std::vector<MTL::Buffer*> bufferPoolAsync;
+    size_t maxChunkSizeAsync; // Adjustable based on GPU vs CPU performance testing.
+    size_t bufferIndexAsync = 0; // Current index for buffer swapping.
+
+    void initializeResources(const std::string& kernelFunctionName);
+    void releaseResources();
+    void processChunks(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
+    MTL::Buffer* getNextBuffer();
+    NS::Error* errorAsync = nullptr;
 
 private:
     struct Timer {

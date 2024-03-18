@@ -129,12 +129,59 @@ void ArrayAdder::addArraysGPU(const std::vector<float>& inA, const std::vector<f
     device->release();
 }
 
-void ArrayAdder::addArraysGpuAsyncWithChunking(const std::vector<float>& inA, const std::vector<float>& inB,
-                                               std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu) {
+void ArrayAdder::addArraysGpuWithChunking( const std::vector<float>& inA, const std::vector<float>& inB,
+                                           std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu) {
+    /*
+     *
+Given the specifications of your Apple M3 Pro system and the sizes of your vectors (10 billion elements for a large example and 12,000 elements for a small example), let's break down how to structure your workgroups for optimal performance. The approach to chunking and workgroup organization is critical in leveraging the GPU efficiently.
+
+Understanding Your System's Constraints
+
+     Max Threads Per Threadgroup (1024):
+                                    This is the upper limit of threads you can have in a single threadgroup.
+
+     Thread Execution Width (32):
+                                    This indicates the optimal number of threads that can be executed in parallel for a single threadgroup.
+
+     Max Buffer Length (9,663,676,416 bytes):
+                                    Maximum size of a buffer that can be allocated,
+                                        important for understanding how much data you can work with in a single operation.
+
+     Unified Memory:
+                                    Simplifies memory management but still requires efficient use of memory to avoid performance bottlenecks.
+Strategy for Large Vectors (10 Billion Elements)
+
+     Chunking Data:
+
+     Given the vector's size far exceeds the Max Buffer Length, you'll need to chunk the data.
+
+     Determine an appropriate chunk size based on the Max Buffer Length and the size of a float (4 bytes).
+     However, processing 10 billion elements in a single pass isn't feasible due to memory constraints,
+        so decide on a chunk size that balances memory use and performance. For instance, processing 1 million elements per chunk would require 4MB per buffer (since each float is 4 bytes), which is well within your buffer limit.
+
+     Configuring Workgroups:
+            With a Thread Execution Width of 32, configure each workgroup to handle a segment of the chunk efficiently.
+            If processing 1 million elements per chunk, divide this work among several threadgroups.
+
+            You might not use the maximum of 1024 threads per threadgroup if it doesn't divide evenly into your chunk size.
+            Aim for full utilization of the 32-thread execution width. For example, you could have workgroups of 32 threads each.
+
+Example Calculation for Small and Large Vectors:
+
+     Large Vector (10 Billion Elements):
+                                    If you're processing in chunks of 1 million elements, that's 10,000 chunks in total.
+                                    Each thread could process multiple elements to match the execution width and threads per threadgroup.
+
+     Small Vector (12,000 Elements):
+                                    This can be processed in a single chunk.
+                                    You could use 375 threads (12,000 elements / 32 = 375), fitting within the 1024 thread per threadgroup limit.
+                                    If you opt for an exact match to the execution width, consider structuring your kernel to handle this efficiently,
+                                        possibly by making each thread process multiple elements if necessary.
+     */
     Timer gpuTimer;
     gpuTimer.setName("GPU Timer (compute)");
 
-    const size_t maxChunkSize = 50000000; // Example chunk size, adjust based on GPU capabilities
+    const size_t maxChunkSize = static_cast<int>(1e7); // TODO. Chunk size below 1E8 required for GPU to beat CPU. Why?
     size_t vectorSize = inA.size();
 
     auto device = MTL::CreateSystemDefaultDevice();
@@ -166,6 +213,12 @@ void ArrayAdder::addArraysGpuAsyncWithChunking(const std::vector<float>& inA, co
     auto bufferE = device->newBuffer(maxChunkSize * sizeof(float), MTL::ResourceStorageModeShared);
     auto bufferF = device->newBuffer(maxChunkSize * sizeof(float), MTL::ResourceStorageModeShared);
 
+    // Error handling example for buffer creation
+    if (!bufferA || !bufferB || !bufferC || !bufferD || !bufferE || !bufferF) {
+        std::cerr << "Failed to create one or more buffers." << std::endl;
+        std::exit(1);
+    }
+
     // Load the first chunk into bufferA and bufferB
     size_t chunkSize = std::min(vectorSize, maxChunkSize);
     memcpy(bufferA->contents(), inA.data(), chunkSize * sizeof(float));
@@ -175,13 +228,28 @@ void ArrayAdder::addArraysGpuAsyncWithChunking(const std::vector<float>& inA, co
 
     gpuTimer.start(true);
 
+    // Use a semaphore for synchronization between CPU and GPU; allows a single one to be made
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(1);
+
     for (size_t start = 0; start < vectorSize; start += maxChunkSize) {
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
         size_t currentChunkSize = std::min(vectorSize - start, maxChunkSize);
 
-        // Encoding commands
+        // Preparing command buffer and command encoder
         auto commandBuffer = commandQueue->commandBuffer();
+
         auto computeCommandEncoder = commandBuffer->computeCommandEncoder();
+
+        // Ensure commandBuffer and computeCommandEncoder creation succeeded
+        if (!commandBuffer || !computeCommandEncoder) {
+            std::cerr << "Failed to create command buffer or encoder." << std::endl;
+            std::exit(1);
+        }
+
         computeCommandEncoder->setComputePipelineState(computePipelineState);
+
+        // Encoding commands
         computeCommandEncoder->setBuffer(bufferA, 0, 0);
         computeCommandEncoder->setBuffer(bufferB, 0, 1);
         computeCommandEncoder->setBuffer(bufferC, 0, 2);
@@ -232,7 +300,11 @@ void ArrayAdder::addArraysGpuAsyncWithChunking(const std::vector<float>& inA, co
         processedChunks++;
     }
     gpuTimer.stop();
+
     gpuTimer.print();
+
+    // Ensure all command buffers are completed before exiting the function
+    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
     // Clean up
     bufferA->release();
@@ -246,4 +318,98 @@ void ArrayAdder::addArraysGpuAsyncWithChunking(const std::vector<float>& inA, co
     library->release();
     commandQueue->release();
     device->release();
+}
+
+void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
+    semaphoreAsync = dispatch_semaphore_create(10); // Allows up to 5 buffers to be processed asynchronously.
+    maxChunkSizeAsync = static_cast<int>(1e7);
+
+    deviceAsync = MTL::CreateSystemDefaultDevice();
+    commandQueueAsync = deviceAsync->newCommandQueue();
+
+    auto libraryPath = NS::String::string(METAL_SHADER_METALLIB_PATH, NS::UTF8StringEncoding);
+    auto library = deviceAsync->newLibrary(libraryPath, nullptr);
+    auto kernelFunction = library->newFunction(NS::String::string(kernelFunctionName.c_str(), NS::UTF8StringEncoding));
+    computePipelineStateAsync = deviceAsync->newComputePipelineState(kernelFunction, &errorAsync);
+
+    // Initialize a pool of buffers for asynchronous processing.
+    for (int i = 0; i < 20; ++i) {
+        // 10 buffers for a pool, allowing 5 in use and 5 being prepared.
+        bufferPoolAsync.push_back(deviceAsync->newBuffer(maxChunkSizeAsync * sizeof(float), MTL::ResourceStorageModeShared));
+    }
+}
+
+void ArrayAdder::releaseResources() {
+    for (auto* buffer : bufferPoolAsync) buffer->release();
+    computePipelineStateAsync->release();
+    commandQueueAsync->release();
+    deviceAsync->release();
+}
+
+MTL::Buffer* ArrayAdder::getNextBuffer() {
+    auto* buffer = bufferPoolAsync[bufferIndexAsync % bufferPoolAsync.size()];
+    bufferIndexAsync++;
+    return buffer;
+}
+
+void ArrayAdder::processChunks(const std::vector<float>& inA, const std::vector<float>& inB,
+                               std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu) {
+    size_t vectorSize = inA.size();
+
+    // Assuming initialization has already been done.
+    size_t currentChunkSize = 0;
+    for (size_t start = 0; start < vectorSize; start += maxChunkSizeAsync) {
+        currentChunkSize = std::min(vectorSize - start, maxChunkSizeAsync);
+        auto* inputBufferA = getNextBuffer();
+        auto* inputBufferB = getNextBuffer();
+        auto* outputBuffer = getNextBuffer();
+
+        memcpy(inputBufferA->contents(), inA.data() + start, currentChunkSize * sizeof(float));
+        memcpy(inputBufferB->contents(), inB.data() + start, currentChunkSize * sizeof(float));
+
+        auto commandBuffer = commandQueueAsync->commandBuffer();
+        auto computeCommandEncoder = commandBuffer->computeCommandEncoder();
+        computeCommandEncoder->setComputePipelineState(computePipelineStateAsync);
+        computeCommandEncoder->setBuffer(inputBufferA, 0, 0);
+        computeCommandEncoder->setBuffer(inputBufferB, 0, 1);
+        computeCommandEncoder->setBuffer(outputBuffer, 0, 2);
+
+        MTL::Size gridSize = {currentChunkSize, 1, 1};
+        MTL::Size threadgroupSize = {std::min(static_cast<size_t>(computePipelineStateAsync->threadExecutionWidth()), gridSize.width), 1, 1};
+        computeCommandEncoder->dispatchThreads(gridSize, threadgroupSize);
+        computeCommandEncoder->endEncoding();
+
+        commandBuffer->addCompletedHandler(^(MTL::CommandBuffer*){
+            // Upon completion, copy data from the output buffer to the CPU.
+            if (onlyOutputToCpu) {
+                memcpy(outC.data() + start, outputBuffer->contents(), currentChunkSize * sizeof(float));
+            }
+            // Signal that this buffer is now free for reuse.
+            dispatch_semaphore_signal(semaphoreAsync);
+        });
+
+        commandBuffer->commit();
+        // After committing, the CPU moves on to prepare the next chunk without waiting for the GPU,
+        // except for semaphore limiting overall parallel command buffers.
+    }
+}
+
+void ArrayAdder::addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>& inA, const std::vector<float>& inB,
+                                                        std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu) {
+    Timer gpuTimer;
+    gpuTimer.setName("GPU Timer (compute)");
+
+    initializeResources(complexAddition ? "complex_operation" : "add_arrays");
+
+    gpuTimer.start(true);
+    processChunks(inA, inB, outC, complexAddition, onlyOutputToCpu);
+    gpuTimer.stop();
+    gpuTimer.print();
+
+    // Wait for all GPU tasks to complete before releasing resources.
+    for (int i = 0; i < 10; ++i) { // Assuming up to 5 buffers can be processed in parallel.
+        dispatch_semaphore_wait(semaphoreAsync, DISPATCH_TIME_FOREVER);
+    }
+
+    releaseResources();
 }

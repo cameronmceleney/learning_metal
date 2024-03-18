@@ -31,6 +31,13 @@ void DeviceChecks::printDeviceInfo() {
     // Metal doesn't expose cache sizes or total memory directly.
     // Demonstrating maxBufferLength as an example of accessible property.
     std::cout << "Max Buffer Length: " << device->maxBufferLength() << std::endl;
+    std::cout << "Has Unified Memory: " << device->hasUnifiedMemory() << std::endl;
+    std::cout << "Max Buffer Arg. Count: " << device->maxArgumentBufferSamplerCount() << std::endl;
+    std::cout << "Max Transfer Rate: " << device->maxTransferRate() << std::endl;
+    std::cout << "Max ThreadGroups Memory Len.: " << device->maxThreadgroupMemoryLength() << std::endl;
+    std::cout << "Thread Execution Width: 32 (hardcoded here from using Macbook M3 Pro)" << std::endl;
+
+    std::cout << "Max Concurrent Compilation Task Count: " << device->maximumConcurrentCompilationTaskCount() << std::endl;
 
     // Release the device if you're done with it
     device->release();
