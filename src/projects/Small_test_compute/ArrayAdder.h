@@ -42,7 +42,7 @@ private:
     MTL::Buffer* getNextBuffer();
     NS::Error* errorAsync = nullptr;
 
-    const int numSemaphores = 12;
+    const int numSemaphores = 9;
 
 private:
     struct Timer {

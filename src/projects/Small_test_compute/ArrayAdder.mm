@@ -323,7 +323,12 @@ Example Calculation for Small and Large Vectors:
 void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
     deviceAsync = MTL::CreateSystemDefaultDevice();
 
-    semaphoreAsync = dispatch_semaphore_create(6); // Allows up to N buffers to be processed asynchronously.
+    commandQueueAsync = deviceAsync->newCommandQueue();
+
+    auto libraryPath = NS::String::string(METAL_SHADER_METALLIB_PATH, NS::UTF8StringEncoding);
+    auto library = deviceAsync->newLibrary(libraryPath, nullptr);
+    auto kernelFunction = library->newFunction(NS::String::string(kernelFunctionName.c_str(), NS::UTF8StringEncoding));
+    computePipelineStateAsync = deviceAsync->newComputePipelineState(kernelFunction, &errorAsync);
 
     /*
      * Selecting chunk size (made easy)
@@ -335,21 +340,37 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
      */
     if (lengthVector <= 0) { std::exit(1); }
 
-    const int threadExecutionWidth = 32;
-    const int maxThreadsPerGroup = static_cast<int>(deviceAsync->maxThreadsPerThreadgroup().height);
-    // Find the largest possible value X where X / 32 is an integer, starting with X = lengthOfVector.
-    size_t X = lengthVector - (lengthVector % threadExecutionWidth);
+    const size_t threadExecutionWidth = computePipelineStateAsync->threadExecutionWidth();
+    const size_t maxThreadsPerGroup = computePipelineStateAsync->maxTotalThreadsPerThreadgroup();
 
-    // Divide the used X/32 result by 1024, and repeat the process
-    // (if X/32/1024 is not an integer then move onto 1023 etc)
-    int threadsPerGroup = maxThreadsPerGroup;
+    // Find the largest possible value X where X / 32 is an integer, starting with X = lengthOfVector.
+    // size_t X = lengthVector - (lengthVector % threadExecutionWidth);
+
+    // Ensure threadsPerGroup is a multiple of threadExecution for best performance
+    size_t threadsPerGroup = maxThreadsPerGroup;
+    /*
     while (X % (threadExecutionWidth * threadsPerGroup) != 0 && threadsPerGroup > 0) {
         threadsPerGroup -= 1;
     }
+     */
+    if (threadsPerGroup % threadExecutionWidth != 0) {
+        threadsPerGroup = (threadsPerGroup / threadExecutionWidth) * threadExecutionWidth;
+    }
+
+    auto totalThreadGroups = static_cast<size_t>(std::ceil(static_cast<double>(lengthVector) / static_cast<double>(threadsPerGroup)));
 
     // Resulting values to use
-    maxChunkSizeAsync = threadExecutionWidth * threadsPerGroup;
-    size_t numChunks = X / maxChunkSizeAsync;
+    // maxChunkSizeAsync = threadExecutionWidth * threadsPerGroup;
+    maxChunkSizeAsync = threadsPerGroup;
+    // size_t numChunks = X / maxChunkSizeAsync;
+    size_t numChunks = totalThreadGroups;
+
+
+    std::cout << "Threads per group: " << threadsPerGroup << std::endl;
+    std::cout << "Total thread groups needed: " << totalThreadGroups << std::endl;
+    std::cout << "maxChunkSizeAsync: " << maxChunkSizeAsync << std::endl;
+    std::cout << "Number of Chunks: " << numChunks << std::endl;
+
 
     // std::cout << "threadsPerGroup: " << threadsPerGroup << std::endl;
     // std::cout << "Chunk Size: " << maxChunkSizeAsync << std::endl;
@@ -371,13 +392,12 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
         exit(1);
     }
 
-    commandQueueAsync = deviceAsync->newCommandQueue();
+    std::cout << "Recommended max working size: " << deviceAsync->recommendedMaxWorkingSetSize() << std::endl;
+    std:: cout << "computePipelineStateAsync || " << "threadExecutionWidth: " << computePipelineStateAsync->threadExecutionWidth()
+    << " | maxTotalThreadsPerThreadgroup: " << computePipelineStateAsync->maxTotalThreadsPerThreadgroup() << " | staticThreadgroupMemoryLength: "
+    << computePipelineStateAsync->staticThreadgroupMemoryLength() << std::endl;
 
-    auto libraryPath = NS::String::string(METAL_SHADER_METALLIB_PATH, NS::UTF8StringEncoding);
-    auto library = deviceAsync->newLibrary(libraryPath, nullptr);
-    auto kernelFunction = library->newFunction(NS::String::string(kernelFunctionName.c_str(), NS::UTF8StringEncoding));
-    computePipelineStateAsync = deviceAsync->newComputePipelineState(kernelFunction, &errorAsync);
-
+    semaphoreAsync = dispatch_semaphore_create(6); // Allows up to N buffers to be processed asynchronously.
     // Initialize a pool of buffers for asynchronous processing.
     for (int i = 0; i < numSemaphores; ++i) {
         // 10 buffers for a pool, allowing 5 in use and 5 being prepared.
@@ -404,6 +424,14 @@ void ArrayAdder::processChunks(const std::vector<float>& inA, const std::vector<
 
     // Assuming initialization has already been done.
     size_t currentChunkSize = 0;
+    std::cout << "Current allocated size: " << deviceAsync->currentAllocatedSize() << std::endl;
+
+    if ( deviceAsync->currentAllocatedSize() > deviceAsync->recommendedMaxWorkingSetSize() ) {
+        std::cout << "WARNING. Current allocated memory [" << deviceAsync->recommendedMaxWorkingSetSize()/(1024*1024)
+                  << " Gb] is greater than recommended max working size ["
+                  << deviceAsync->recommendedMaxWorkingSetSize()/(1024*1024) << " Gb]." << std::endl;
+    }
+
     for (size_t start = 0; start < vectorSize; start += maxChunkSizeAsync) {
         currentChunkSize = std::min(vectorSize - start, maxChunkSizeAsync);
         auto* inputBufferA = getNextBuffer();
