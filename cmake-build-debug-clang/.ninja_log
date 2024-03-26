@@ -1,8 +1,9 @@
 # ninja log v5
-10	786	1710112742278278569	CMakeFiles/hello_metal.dir/app_delegate.cpp.o	484551c0c14220bf
-10	787	1710112742275820780	CMakeFiles/hello_metal.dir/renderer.cpp.o	be89102f19b887b0
-9	687	1710112155592533563	CMakeFiles/hello_metal.dir/main.cpp.o	8fe38bbca37f6070
-1	643	1710112046099645670	CMakeFiles/hello_metal.dir/metalChecks.cpp.o	b127097ccfec9344
-10	785	1710112742276303196	CMakeFiles/hello_metal.dir/view_delegate.cpp.o	202724fc9d0e7c1c
-9	800	1710112742295210385	CMakeFiles/hello_metal.dir/boilerplate_example.cpp.o	b9ee628db830a6da
 800	960	1710112742457118433	hello_metal	746477fe1a95d7fa
+9	800	1710112742295210385	CMakeFiles/hello_metal.dir/boilerplate_example.cpp.o	b9ee628db830a6da
+10	785	1710112742276303196	CMakeFiles/hello_metal.dir/view_delegate.cpp.o	202724fc9d0e7c1c
+1	643	1710112046099645670	CMakeFiles/hello_metal.dir/metalChecks.cpp.o	b127097ccfec9344
+9	687	1710112155592533563	CMakeFiles/hello_metal.dir/main.cpp.o	8fe38bbca37f6070
+10	787	1710112742275820780	CMakeFiles/hello_metal.dir/renderer.cpp.o	be89102f19b887b0
+10	786	1710112742278278569	CMakeFiles/hello_metal.dir/app_delegate.cpp.o	484551c0c14220bf
+0	64	1711458849301508506	build.ninja	ff3aee2cea30dc7e

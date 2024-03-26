@@ -39,7 +39,7 @@ int main() {
     // GraphicalExamples::generateSquare();
 
     // Written explicitly so I can check the results by hand. Keep below 1 billion elements without chunking!
-    const size_t vectorSize = static_cast<int>(1e7);
+    const size_t vectorSize = static_cast<int>(1e8);
     std::vector<float> vec1 = getRandomVector(vectorSize);
     std::vector<float> vec2 = getRandomVector(vectorSize);
     std::cout << "len vec1: " << vec1.size() << " ! len vec2: " << vec2.size() << std::endl;

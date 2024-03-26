@@ -69,6 +69,11 @@ set(COMPUTE_FUNCTION_EXAMPLES
 )
 
 ################################################################
+# Assuming your .metal file is located at src/my_shader.metal
+set(METAL_FILE "${PROJECTS_DIR}/Small_test_compute/addition.metal")
+
+# Mark the .metal file as a header-only file to include it in the project for IDEs
+set_source_files_properties(${METAL_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # Links all user sources to the executable
 add_executable(${PROJECT_NAME} main.cpp
@@ -76,6 +81,7 @@ add_executable(${PROJECT_NAME} main.cpp
         ${METAL_CHECKS_EXAMPLES}
         ${GRAPHICAL_EXAMPLES}
         ${COMPUTE_FUNCTION_EXAMPLES}
+        ${METAL_FILE}
 )
 
 ################################################################

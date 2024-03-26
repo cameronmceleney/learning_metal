@@ -33,8 +33,13 @@ private:
     MTL::CommandQueue* commandQueueAsync;
     MTL::ComputePipelineState* computePipelineStateAsync;
     std::vector<MTL::Buffer*> bufferPoolAsync;
-    size_t maxChunkSizeAsync; // Adjustable based on GPU vs CPU performance testing.
+    size_t chunkDataPointsPerThreadGroup; // Adjustable based on GPU vs CPU performance testing.
     size_t bufferIndexAsync = 0; // Current index for buffer swapping.
+    size_t chunkBytesMaxPerThreadGroup;
+    size_t dTypeSizeAsync;
+    size_t dataPointsPerThread;
+    size_t threadsPerThreadGroup;
+    size_t numThreadGroups;
 
     void initializeResources(const std::string& kernelFunctionName);
     void releaseResources();
@@ -42,7 +47,7 @@ private:
     MTL::Buffer* getNextBuffer();
     NS::Error* errorAsync = nullptr;
 
-    const int numSemaphores = 9;
+    const int numBuffersInAsyncPool = 6;
 
 private:
     struct Timer {
