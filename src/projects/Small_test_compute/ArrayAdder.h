@@ -9,11 +9,19 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <mutex>
 #include <vector>
+
+typedef struct {
+    uint32_t totalDataPoints;
+    uint32_t threadsPerThreadGroup;
+    // Add other configuration values as needed
+} KernelConfig;
 
 class ArrayAdder {
 public:
-    // Adds elements of two input arrays using GPU and stores the result in the output array.
+
+// Adds elements of two input arrays using GPU and stores the result in the output array.
     // Parameters inA and inB are the input arrays, and outC is the output array where the result is stored.
     static void addArraysGPU(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC, bool complexAddition);
     static void addArraysCPU(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC);
@@ -26,6 +34,9 @@ public:
                                                         std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
 
     int lengthVector = -1;
+    KernelConfig config = {};
+    MTL::Buffer* configBuffer;
+
 
 private:
     dispatch_semaphore_t semaphoreAsync;
@@ -33,21 +44,35 @@ private:
     MTL::CommandQueue* commandQueueAsync;
     MTL::ComputePipelineState* computePipelineStateAsync;
     std::vector<MTL::Buffer*> bufferPoolAsync;
-    size_t chunkDataPointsPerThreadGroup; // Adjustable based on GPU vs CPU performance testing.
     size_t bufferIndexAsync = 0; // Current index for buffer swapping.
+    const int numBuffersInAsyncPool = 3;
+    std::mutex bufferPoolMutex; // Mutex to protect access to bufferPoolAsync
+
+    size_t chunkDataPointsPerThreadGroup; // Adjustable based on GPU vs CPU performance testing.
     size_t chunkBytesMaxPerThreadGroup;
+    size_t numThreadGroups;
+
     size_t dTypeSizeAsync;
     size_t dataPointsPerThread;
     size_t threadsPerThreadGroup;
-    size_t numThreadGroups;
+    size_t threadsPerChunk;
+    size_t threadGroupsPerChunk;
+    size_t bytesMaxPerChunk;
+    size_t dataPointsPerChunk;
+    size_t chunksForDataset;
 
     void initializeResources(const std::string& kernelFunctionName);
+    void checkForErrors();
     void releaseResources();
     void processChunks(const std::vector<float>& inA, const std::vector<float>& inB, std::vector<float>& outC, bool complexAddition, bool onlyOutputToCpu);
+    MTL::Buffer* prepareBufferForChunk(MTL::Buffer* buffer, const std::vector<float>& inA, const std::vector<float>& inB, size_t chunkIndex);
     MTL::Buffer* getNextBuffer();
     NS::Error* errorAsync = nullptr;
 
-    const int numBuffersInAsyncPool = 6;
+    void simpleTestCase(const std::vector<float>& inA, const std::vector<float>& inB,
+                                                        std::vector<float>& outC,
+                                                        bool onlyOutputToCpu);
+
 
 private:
     struct Timer {

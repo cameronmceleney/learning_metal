@@ -5,7 +5,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#define THREADGROUP_SIZE 640 // Matches the default SIMD Width of my Macbook Pro
+#define THREADGROUP_SIZE 256 // Matches the default SIMD Width of my Macbook Pro
 #define LOAD_SIZE 4 // Number of floats loaded per operation
 
 typedef struct {
@@ -78,4 +78,33 @@ kernel void further_improved_complex_operation(device ArgumentBuffer& args,
 
     // Write the results from shared memory back to global memory
     *((device float4*)(args.outC + idx)) = sharedOutC[thread_pos];
+}
+
+typedef struct {
+    uint totalDataPoints;
+    uint threadsPerThreadGroup;
+    // Add other configuration values as needed
+} KernelConfig;
+
+kernel void further_improved_complex_operation2(device float* allData [[buffer(0)]],
+                                               constant KernelConfig& config [[buffer(1)]],
+                                               uint thread_pos [[thread_position_in_threadgroup]],
+                                               uint threadgroup_pos [[thread_index_in_threadgroup]]) {
+    // Calculate indices based on thread position directly; no need for sharedConfig for constants
+    uint totalFloat4s = config.totalDataPoints / 4;
+    uint indexPerThreadGroup = totalFloat4s / config.threadsPerThreadGroup;
+
+    // Start indices for inA, inB, and outC within the buffer, adjusted for float4
+    uint baseIndex = indexPerThreadGroup * thread_pos;
+    uint inAIndex = baseIndex;
+    uint inBIndex = totalFloat4s + baseIndex; // Assuming the next segment directly follows
+    uint outCIndex = 2 * totalFloat4s + baseIndex; // Assuming outC follows inB
+
+    // Ensure we're within bounds
+    if (baseIndex < totalFloat4s) {
+        float4 inA = *((device float4*)(allData + inAIndex));
+        float4 inB = *((device float4*)(allData + inBIndex));
+        float4 outCValue = sin(inA * inB) + inA;
+        *((device float4*)(allData + outCIndex)) = outCValue;
+    }
 }

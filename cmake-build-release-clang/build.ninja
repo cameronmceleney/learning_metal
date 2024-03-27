@@ -50,7 +50,7 @@ cmake_ninja_workdir = /Users/cameronmceleney/CLionProjects/hello_metal/cmake-bui
 build cmake_object_order_depends_target_hello_metal: phony || CompileMetalShader
 
 build CMakeFiles/hello_metal.dir/main.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/main.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/main.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -58,7 +58,7 @@ build CMakeFiles/hello_metal.dir/main.cpp.o: CXX_COMPILER__hello_metal_unscanned
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir
 
 build CMakeFiles/hello_metal.dir/src/projects/checks_examples/check_for_metal_device.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/checks_examples/check_for_metal_device.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/checks_examples/check_for_metal_device.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -66,7 +66,7 @@ build CMakeFiles/hello_metal.dir/src/projects/checks_examples/check_for_metal_de
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/checks_examples
 
 build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/graphical_example_m.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/graphical_implementation_example/graphical_example_m.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/graphical_example_m.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -74,7 +74,7 @@ build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/g
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example
 
 build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/app_delegate.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/graphical_implementation_example/control/app_delegate.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/app_delegate.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -82,7 +82,7 @@ build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/c
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control
 
 build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/view_delegate.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/graphical_implementation_example/control/view_delegate.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/view_delegate.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -90,7 +90,7 @@ build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/c
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control
 
 build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/view/renderer.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/graphical_implementation_example/view/renderer.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/view/renderer.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
@@ -98,16 +98,16 @@ build CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/v
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/view
 
 build CMakeFiles/hello_metal.dir/src/projects/compute_function_examples/compute_function_examples.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/compute_function_examples/compute_function_examples.cpp || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
   DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/compute_function_examples/compute_function_examples.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
   OBJECT_DIR = CMakeFiles/hello_metal.dir
   OBJECT_FILE_DIR = CMakeFiles/hello_metal.dir/src/projects/compute_function_examples
 
-build CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/ArrayAdder.mm.o: OBJCXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/ArrayAdder.mm || cmake_object_order_depends_target_hello_metal
-  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib\"
-  DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/ArrayAdder.mm.o.d
+build CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp.o: CXX_COMPILER__hello_metal_unscanned_Release /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp || cmake_object_order_depends_target_hello_metal
+  DEFINES = -DMETAL_SHADER_METALLIB_PATH=\"/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib\"
+  DEP_FILE = CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp.o.d
   FLAGS = -O3 -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3 -fcolor-diagnostics
   INCLUDES = -I/Users/cameronmceleney/CLionProjects/hello_metal/lib -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Foundation -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/Metal -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalFX -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/QuartzCore -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/AppKit -I/Users/cameronmceleney/CLionProjects/hello_metal/lib/metal-cpp/MetalKit -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk/System/Library/Frameworks
   OBJECT_DIR = CMakeFiles/hello_metal.dir
@@ -121,9 +121,9 @@ build CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/ArrayAdder.mm.o
 #############################################
 # Link the executable hello_metal
 
-build hello_metal: CXX_EXECUTABLE_LINKER__hello_metal_Release CMakeFiles/hello_metal.dir/main.cpp.o CMakeFiles/hello_metal.dir/src/projects/checks_examples/check_for_metal_device.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/graphical_example_m.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/app_delegate.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/view_delegate.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/view/renderer.cpp.o CMakeFiles/hello_metal.dir/src/projects/compute_function_examples/compute_function_examples.cpp.o CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/ArrayAdder.mm.o || CompileMetalShader
+build hello_metal: CXX_EXECUTABLE_LINKER__hello_metal_Release CMakeFiles/hello_metal.dir/main.cpp.o CMakeFiles/hello_metal.dir/src/projects/checks_examples/check_for_metal_device.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/graphical_example_m.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/app_delegate.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/control/view_delegate.cpp.o CMakeFiles/hello_metal.dir/src/projects/graphical_implementation_example/view/renderer.cpp.o CMakeFiles/hello_metal.dir/src/projects/compute_function_examples/compute_function_examples.cpp.o CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp.o || CompileMetalShader
   FLAGS = -O3 -DNDEBUG -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.4.sdk -mmacosx-version-min=14.3
-  LINK_LIBRARIES = -Xlinker -framework -Xlinker Foundation  -Xlinker -framework -Xlinker Metal  -Xlinker -framework -Xlinker QuartzCore  -lc++  -lc++abi  -lc++
+  LINK_LIBRARIES = -Xlinker -framework -Xlinker Foundation  -Xlinker -framework -Xlinker Metal  -Xlinker -framework -Xlinker QuartzCore  -lc++  -lc++abi
   OBJECT_DIR = CMakeFiles/hello_metal.dir
   POST_BUILD = :
   PRE_LINK = :
@@ -134,7 +134,7 @@ build hello_metal: CXX_EXECUTABLE_LINKER__hello_metal_Release CMakeFiles/hello_m
 #############################################
 # Utility command for CompileMetalShader
 
-build CompileMetalShader: phony CMakeFiles/CompileMetalShader addition.metallib addition.air
+build CompileMetalShader: phony CMakeFiles/CompileMetalShader coffeewitharch_examples.metallib coffeewitharch_examples.air
 
 
 #############################################
@@ -163,24 +163,24 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 #############################################
 # Phony custom command for CMakeFiles/CompileMetalShader
 
-build CMakeFiles/CompileMetalShader | ${cmake_ninja_workdir}CMakeFiles/CompileMetalShader: phony addition.metallib
+build CMakeFiles/CompileMetalShader | ${cmake_ninja_workdir}CMakeFiles/CompileMetalShader: phony coffeewitharch_examples.metallib
 
 
 #############################################
-# Custom command for addition.metallib
+# Custom command for coffeewitharch_examples.metallib
 
-build addition.metallib | ${cmake_ninja_workdir}addition.metallib: CUSTOM_COMMAND addition.air
-  COMMAND = cd /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang && xcrun -sdk macosx metallib /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.air -o /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.metallib
-  DESC = Compiling /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.air to Metal Library
+build coffeewitharch_examples.metallib | ${cmake_ninja_workdir}coffeewitharch_examples.metallib: CUSTOM_COMMAND coffeewitharch_examples.air
+  COMMAND = cd /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang && xcrun -sdk macosx metallib /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.air -o /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib
+  DESC = Compiling /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.air to Metal Library
   restat = 1
 
 
 #############################################
-# Custom command for addition.air
+# Custom command for coffeewitharch_examples.air
 
-build addition.air | ${cmake_ninja_workdir}addition.air: CUSTOM_COMMAND /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/addition.metal
-  COMMAND = cd /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang && xcrun -sdk macosx metal -c /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/addition.metal -o /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/addition.air
-  DESC = Compiling /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/addition.metal to AIR
+build coffeewitharch_examples.air | ${cmake_ninja_workdir}coffeewitharch_examples.air: CUSTOM_COMMAND /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/coffeewitharch_examples.metal
+  COMMAND = cd /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang && xcrun -sdk macosx metal -c /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/coffeewitharch_examples.metal -o /Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.air
+  DESC = Compiling /Users/cameronmceleney/CLionProjects/hello_metal/src/projects/Small_test_compute/coffeewitharch_examples.metal to AIR
   restat = 1
 
 # =============================================================================

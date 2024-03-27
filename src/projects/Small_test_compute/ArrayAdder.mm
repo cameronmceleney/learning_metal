@@ -330,33 +330,55 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
     auto kernelFunction = library->newFunction(NS::String::string(kernelFunctionName.c_str(), NS::UTF8StringEncoding));
     computePipelineStateAsync = deviceAsync->newComputePipelineState(kernelFunction, &errorAsync);
 
-    if (errorAsync)
-    {
-        std::cout << "Async error set for debugging reasons" << std::endl;
+    if (!computePipelineStateAsync) {
+        std::cerr << "Failed to set compute pipeline state." << std::endl;
         std::exit(1);
     }
 
-    /*
-     * Selecting chunk size (made easy)
-     *      1. Get the vector's length
-     *      2. Divide the vector by 32 (this is threadExecutionWith)
-     *          a. If this result is not an int, decrement the variable holding the vector-length and continue until an
-     *          int result is found
- *          3. Take the result and divide by 1024 (this is maxThreadsPerGroup)
-     */
     if (lengthVector <= 0) { std::exit(1); }
 
     const size_t threadExecutionWidth = computePipelineStateAsync->threadExecutionWidth();
     const size_t maxThreadsPerGroup = computePipelineStateAsync->maxTotalThreadsPerThreadgroup();
-    const bool oneDataPiecePerThread = false; // Kept TRUE while debugging
+    const size_t maxMemoryPerThreadGroup = deviceAsync->maxThreadgroupMemoryLength();
+
+    // Will be using floats throughout
     dTypeSizeAsync = sizeof(float);
 
-    // Written in this way to allow for threadsPerThreadGroup to take on custom values in the future
-    threadsPerThreadGroup = 640;
+    // First find out the total length of the inputs vectors (in bytes)
+    size_t totalVectors = 3; // 2 inputs and one output
+    size_t totalMemoryRequirement = lengthVector * totalVectors * dTypeSizeAsync;
 
-    if (threadsPerThreadGroup % threadExecutionWidth != 0) {
+    bytesMaxPerChunk = 2e9; // Only allowing 1 Gb as a max buffer size for now
+    dataPointsPerChunk = bytesMaxPerChunk / (dTypeSizeAsync * totalVectors);
+
+    // Will be assuming that during testing totalMemoryForInputs > Max Buffer Length (9663676416 bytes)
+
+    /*
+     * Best performance will partly come from minimising memory swaps. This means we want to maximise the size of the
+     * buffers used each time (buffer size is determined by chunk calculations), which means we want to have
+     * as many thread-groups working as possible within those chunks.
+     */
+    threadsPerThreadGroup = threadExecutionWidth * 8;
+    dataPointsPerThread = 4;  // Only triggered if default case (oneDataPiecePerThread == TRUE) not used
+
+    threadsPerChunk = dataPointsPerChunk / dataPointsPerThread;
+    threadGroupsPerChunk = (threadsPerChunk + threadsPerThreadGroup - 1) / threadsPerThreadGroup;
+    chunksForDataset = (totalMemoryRequirement + bytesMaxPerChunk - 1) / bytesMaxPerChunk;
+
+    semaphoreAsync = dispatch_semaphore_create(numBuffersInAsyncPool); // Allows up to N buffers to be processed asynchronously.
+    // Initialize a pool of buffers for asynchronous processing.
+    for ( int i = 0; i < numBuffersInAsyncPool; ++i) {
+        bufferPoolAsync.push_back(deviceAsync->newBuffer(bytesMaxPerChunk, MTL::ResourceStorageModeShared));
+    }
+
+    config.threadsPerThreadGroup = static_cast<uint32_t>(threadsPerThreadGroup);
+    configBuffer = deviceAsync->newBuffer(&config, sizeof(KernelConfig), MTL::ResourceStorageModeManaged);
+}
+
+void ArrayAdder::checkForErrors() {
+    if (threadsPerThreadGroup % computePipelineStateAsync->threadExecutionWidth() != 0) {
         // Ensure that the Thread Group size is a multiple of the Thread Execution width for best performance
-        threadsPerThreadGroup = threadsPerThreadGroup - (threadsPerThreadGroup % threadExecutionWidth);
+        threadsPerThreadGroup = threadsPerThreadGroup - (threadsPerThreadGroup % computePipelineStateAsync->threadExecutionWidth());
     }
 
     if (threadsPerThreadGroup > computePipelineStateAsync->maxTotalThreadsPerThreadgroup())
@@ -365,58 +387,7 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
         exit(1);
     }
 
-    dataPointsPerThread = 4;  // Only triggered if default case (oneDataPiecePerThread == TRUE) not used
-    if (oneDataPiecePerThread)
-    {
-        // Will be the default case. One thread per data point means that the sizes of the Thread Group and (max) chunk are equal
-        dataPointsPerThread = 1;
-        chunkDataPointsPerThreadGroup = threadsPerThreadGroup;  //threadsPerThreadGroup * 1000;
-        if (chunkDataPointsPerThreadGroup < lengthVector) {
-            numThreadGroups = static_cast<size_t>(std::ceil(
-                    static_cast<double>(lengthVector) / static_cast<double>(chunkDataPointsPerThreadGroup)));
-        }
-        else
-        {
-            numThreadGroups = 1;
-        }
-    }
-    else if (dataPointsPerThread >= 2)
-    {
-        chunkDataPointsPerThreadGroup = threadsPerThreadGroup * dataPointsPerThread;
-        numThreadGroups = static_cast<size_t>(std::ceil(static_cast<double>(lengthVector) / static_cast<double>(chunkDataPointsPerThreadGroup)));
-    }
-    else if (dataPointsPerThread == -1)
-    {
-        // Override condition: number of Thread Groups is minimised for a non-max number of Threads per Thread Group.
-        // Caution! Can led to many data pieces per Thread Groups (caching problems) i.e. with 1e7 array
-        // and 625 threadsPerThreadGroup one gets chunkDataPointsPerThreadGroup=16000 and numThreadGroups=16000
-        chunkDataPointsPerThreadGroup = static_cast<size_t>(std::ceil(static_cast<double>(lengthVector) / static_cast<double>(threadsPerThreadGroup)));
-        numThreadGroups = chunkDataPointsPerThreadGroup;
-        dataPointsPerThread = std::ceil(chunkDataPointsPerThreadGroup / threadsPerThreadGroup);
-
-        // DOESNT WORK RIGHT NOW
-        std::exit(1);
-    }
-    else if (dataPointsPerThread == -2)
-    {
-        // Override condition: Chunk size (number of Thread Groups) is maximised (minimised).
-        // Caution! Will lead to many data pieces for only a few threads i.e. with 1e7 array of floats (4 bytes per
-        // float) we get chunkDataPointsPerThreadGroup=9663676416 and numThreadGroups=1 (on a MBP14 (late 2023))
-        chunkDataPointsPerThreadGroup =  deviceAsync->maxBufferLength();
-        numThreadGroups = static_cast<size_t>(std::ceil(static_cast<double>(lengthVector * dTypeSizeAsync) / static_cast<double>(chunkDataPointsPerThreadGroup)));
-
-        // DOESNT WORK RIGHT NOW
-        std::exit(1);
-    }
-    else
-    {
-        std::cout << "Data for each Thread Group was unable to be calculated" << std::endl;
-        std::exit(1);
-    }
-
-    chunkBytesMaxPerThreadGroup = chunkDataPointsPerThreadGroup * dTypeSizeAsync;
-
-    // The number of chunks should be equal to the number of thread groups
+        // The number of chunks should be equal to the number of thread groups
     std::cout << "Threads per Thread Group: " << threadsPerThreadGroup << std::endl;
     std::cout << "Number of Thread Groups: " << numThreadGroups << std::endl;
     std::cout << "Chunk (Data Points) Per Thread Group: " << chunkDataPointsPerThreadGroup << std::endl;
@@ -444,23 +415,18 @@ void ArrayAdder::initializeResources(const std::string& kernelFunctionName) {
                   << deviceAsync->recommendedMaxWorkingSetSize() / static_cast<int>(std::pow(1024, 3)) << " Gb]."
                   << std::endl;
     }
-
-    semaphoreAsync = dispatch_semaphore_create(3); // Allows up to N buffers to be processed asynchronously.
-    // Initialize a pool of buffers for asynchronous processing.
-    for ( int i = 0; i < numBuffersInAsyncPool; ++i) {
-        // 10 buffers for a pool, allowing 5 in use and 5 being prepared.
-        bufferPoolAsync.push_back(deviceAsync->newBuffer(chunkBytesMaxPerThreadGroup, MTL::ResourceStorageModeShared));
-    }
 }
 
 void ArrayAdder::releaseResources() {
     for (auto* buffer : bufferPoolAsync) buffer->release();
+    configBuffer->release();
     computePipelineStateAsync->release();
     commandQueueAsync->release();
     deviceAsync->release();
 }
 
 MTL::Buffer* ArrayAdder::getNextBuffer() {
+    std::lock_guard<std::mutex> lock(bufferPoolMutex);
     auto* buffer = bufferPoolAsync[bufferIndexAsync % bufferPoolAsync.size()];
     bufferIndexAsync++;
     return buffer;
@@ -483,41 +449,33 @@ void ArrayAdder::processChunks(const std::vector<float>& inA, const std::vector<
             std::exit(1);
         }
 
-    size_t maxBufferSize = std::min(deviceAsync->maxBufferLength() / dTypeSizeAsync, chunkDataPointsPerThreadGroup);
-    for (size_t processedData = 0; processedData < lengthVector; processedData += maxBufferSize) {
-        size_t currentChunkDataPoints = std::min(lengthVector - processedData, maxBufferSize);
-        size_t currentChunkBytes = currentChunkDataPoints * dTypeSizeAsync;
+    for (size_t chunkIndex = 0; chunkIndex < chunksForDataset; ++chunkIndex) {
+        dispatch_semaphore_wait(semaphoreAsync, DISPATCH_TIME_FOREVER);
+        auto* buffer = getNextBuffer();
 
-        size_t threadsNeededForCurrentChunk = (currentChunkDataPoints + dataPointsPerThread - 1) / dataPointsPerThread;
-        size_t threadsGroupsNeededForCurrentChunk = (threadsNeededForCurrentChunk + threadsPerThreadGroup - 1) / threadsPerThreadGroup;;
-
-        auto* inputBufferA = getNextBuffer();
-        auto* inputBufferB = getNextBuffer();
-        auto* outputBuffer = getNextBuffer();
-
-        memcpy(inputBufferA->contents(), inA.data() + processedData, currentChunkBytes);
-        memcpy(inputBufferB->contents(), inB.data() + processedData, currentChunkBytes);
+        prepareBufferForChunk(buffer, inA, inB, chunkIndex);
 
         auto commandBuffer = commandQueueAsync->commandBuffer();
         auto computeCommandEncoder = commandBuffer->computeCommandEncoder();
 
         computeCommandEncoder->setComputePipelineState(computePipelineStateAsync);
-        computeCommandEncoder->setBuffer(inputBufferA, 0, 0);
-        computeCommandEncoder->setBuffer(inputBufferB, 0, 1);
-        computeCommandEncoder->setBuffer(outputBuffer, 0, 2);
+        computeCommandEncoder->setBuffer(buffer, 0, 0);
+        computeCommandEncoder->setBuffer(configBuffer, 0, 1);
 
-        MTL::Size gridSize = {currentChunkDataPoints, 1, 1};
+        MTL::Size threadGroupsPerGrid = {threadGroupsPerChunk, 1, 1};
         MTL::Size threadgroupSize = {threadsPerThreadGroup, 1, 1};
-        MTL::Size threadgroupsPerGridSize = {threadsGroupsNeededForCurrentChunk, 1, 1};
-        computeCommandEncoder->dispatchThreadgroups(threadgroupsPerGridSize, threadgroupSize);
+        computeCommandEncoder->dispatchThreadgroups(threadGroupsPerGrid, threadgroupSize);
         //computeCommandEncoder->dispatchThreads(gridSize, threadgroupSize);
         computeCommandEncoder->endEncoding();
 
         commandBuffer->addCompletedHandler(^(MTL::CommandBuffer*){
             // Upon completion of the GPU for this iteration
             if (onlyOutputToCpu) {
-                // copy data from the output buffer to the CPU.
-                memcpy(outC.data() + processedData, outputBuffer->contents(), currentChunkBytes);
+                size_t offset = chunkIndex * dataPointsPerChunk;
+                size_t actualDataPointsInChunk = std::min(dataPointsPerChunk, lengthVector - offset);
+
+                auto* bufferPtr = static_cast<float*>(buffer->contents());
+                memcpy(outC.data() + offset, bufferPtr + 2 * actualDataPointsInChunk, actualDataPointsInChunk * dTypeSizeAsync);
             }
             // Signal that this buffer is now free for reuse.
             dispatch_semaphore_signal(semaphoreAsync);
@@ -535,7 +493,7 @@ void ArrayAdder::addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>
     Timer gpuTimer;
     gpuTimer.setName("GPU Timer (compute)");
 
-    initializeResources(complexAddition ? "further_improved_complex_operation" : "add_arrays");
+    initializeResources(complexAddition ? "further_improved_complex_operation2" : "add_arrays");
 
     gpuTimer.start(true);
     processChunks(inA, inB, outC, complexAddition, onlyOutputToCpu);
@@ -548,4 +506,26 @@ void ArrayAdder::addArraysGpuChunkingDynamicBufferAsync(const std::vector<float>
     }
 
     releaseResources();
+}
+
+MTL::Buffer* ArrayAdder::prepareBufferForChunk(MTL::Buffer* buffer, const std::vector<float>& inA, const std::vector<float>& inB,
+                                               size_t chunkIndex) {
+    // Calculate the starting index for this chunk
+    size_t startIdx = chunkIndex * dataPointsPerChunk;
+
+    // Calculate the actual number of elements in this chunk (might be less for the last chunk)
+    size_t actualDataPointsInChunk = std::min(dataPointsPerChunk, lengthVector - startIdx);
+
+    // Each chunk will have 3 rows: inA, inB, and space for outC
+    //size_t bufferSizeBytes = actualDataPointsInChunk * dTypeSizeAsync * 3;
+
+    // Get a pointer to the buffer's memory to populate it
+    auto* bufferPtr = static_cast<float*>(buffer->contents());
+
+    // Copy inA and inB segments into the buffer
+    memcpy(bufferPtr, inA.data() + startIdx, actualDataPointsInChunk * dTypeSizeAsync);
+    memcpy(bufferPtr + actualDataPointsInChunk, inB.data() + startIdx, actualDataPointsInChunk * dTypeSizeAsync);
+    // The space for outC (third row) is automatically allocated and does not need to be initialized
+
+    return buffer;
 }

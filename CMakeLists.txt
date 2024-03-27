@@ -63,14 +63,16 @@ set(GRAPHICAL_EXAMPLES
 set(COMPUTE_FUNCTION_EXAMPLES
         ${PROJECTS_DIR}/compute_function_examples/compute_function_examples.cpp
         ${PROJECTS_DIR}/compute_function_examples/compute_function_examples.h
-        src/projects/Small_test_compute/ArrayAdder.mm
-        src/projects/Small_test_compute/ArrayAdder.h
+        #src/projects/Small_test_compute/ArrayAdder.mm
+        #src/projects/Small_test_compute/ArrayAdder.h
+        src/projects/Small_test_compute/CoffeeWithArch_examples.cpp
+        src/projects/Small_test_compute/CoffeeWithArch_examples.h
         #src/projects/compute_function_examples/00-window.cpp
 )
 
 ################################################################
 # Assuming your .metal file is located at src/my_shader.metal
-set(METAL_FILE "${PROJECTS_DIR}/Small_test_compute/addition.metal")
+set(METAL_FILE "${PROJECTS_DIR}/Small_test_compute/coffeewitharch_examples.metal")
 
 # Mark the .metal file as a header-only file to include it in the project for IDEs
 set_source_files_properties(${METAL_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -90,13 +92,13 @@ add_executable(${PROJECT_NAME} main.cpp
 message(STATUS "CMAKE_CURRENT_BINARY_DIR: ${CMAKE_CURRENT_BINARY_DIR}")
 
 # Path to Metal shader source file
-set(METAL_SHADER_SRC ${PROJECTS_DIR}/Small_test_compute/addition.metal)
+set(METAL_SHADER_SRC ${PROJECTS_DIR}/Small_test_compute/coffeewitharch_examples.metal)
 
 # Output path for the compiled Metal shader (AIR file)
-set(METAL_SHADER_AIR ${CMAKE_CURRENT_BINARY_DIR}/addition.air)
+set(METAL_SHADER_AIR ${CMAKE_CURRENT_BINARY_DIR}/coffeewitharch_examples.air)
 
 # Output path for the Metal library (.metallib file)
-set(METAL_SHADER_METALLIB ${CMAKE_CURRENT_BINARY_DIR}/addition.metallib)
+set(METAL_SHADER_METALLIB ${CMAKE_CURRENT_BINARY_DIR}/coffeewitharch_examples.metallib)
 add_definitions(-DMETAL_SHADER_METALLIB_PATH="${METAL_SHADER_METALLIB}")
 
 ################################################################
