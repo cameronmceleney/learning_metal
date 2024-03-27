@@ -14,11 +14,17 @@
 
 class CoffeeExample {
 public:
-    void vectorAddition( const int &numElements, const std::string &kernelFunctionName, const bool &fullDebug );
-    void vectorAdditionPrivateResources( const int &numElements, const std::string &kernelFunctionName,
+    void vectorAddition( const float &numElements, const std::string &kernelFunctionName, const bool &fullDebug );
+    void vectorAdditionPrivateResources( const float &numElements, const std::string &kernelFunctionName,
                                          const bool &fullDebug);
-    void vectorAdditionManagedResources( const int &numElements, const std::string &kernelFunctionName,
+    void vectorAdditionManagedResources( const float &numElements, const std::string &kernelFunctionName,
                                      const bool &fullDebug);
+    void vectorAdditionFullyManagedResources( const float &numElements, const std::string &kernelFunctionName,
+                                 const bool &fullDebug);
+
+    void vectorAdditionAsyncBuffers( const float &numElements, const std::string &kernelFunctionName,
+                             const bool &fullDebug);
+private:
 private:
     MTL::Device* device;
     MTL::CommandQueue* commandQueuePrimary;
@@ -30,19 +36,25 @@ private:
     MTL::CommandBuffer* computeCommandBuffer;
     MTL::ComputeCommandEncoder* computeCommandEncoder;
 
+    std::vector<float> vec1;
+    std::vector<float> vec2;
+
     bool FULL_DEBUG;
 
-    static std::vector<int> getRandomVector(size_t size);
-    static void verifyResults(const std::vector<int> &inVecA, const std::vector<int> &inVecB,
-                              const std::vector<int> &resultVec, const bool &printAnswer);
-
+    static std::vector<float> getRandomVector(size_t size);
+    static void verifyResultsAddition(const std::vector<float> &inVecA, const std::vector<float> &inVecB,
+                              const std::vector<float> &resultVec, const bool &printAnswer);
+    static void verifyResultsSineAddition(const std::vector<float> &inVecA, const std::vector<float> &inVecB,
+                              const std::vector<float> &resultVec, const bool &printAnswer);
     void initialiseResources(const std::string& kernelFunctionName);
-    void processVectorAddition(const std::vector<int> &inA, const std::vector<int> &inB, std::vector<int> &outC);
+    void processVectorAddition(const std::vector<float> &inA, const std::vector<float> &inB, std::vector<float> &outC);
     void releaseResources();
 
 private:
     struct CoreParamsForDevice {
         size_t NUM_ELEMENTS;
+        size_t NUM_ELEMENTS_PER_THREAD;
+        ushort NUM_VEC4;
         size_t bytes;
 
         // Method to calculate the size of the struct
@@ -54,7 +66,8 @@ private:
         }
 
         // Constructor to automatically calculate bytes upon creation
-        explicit CoreParamsForDevice(size_t N) : NUM_ELEMENTS(N) {
+        explicit CoreParamsForDevice(size_t N, size_t numDp) : NUM_ELEMENTS(N), NUM_ELEMENTS_PER_THREAD(numDp) {
+            NUM_VEC4 = NUM_ELEMENTS_PER_THREAD / 4;
             calculateSize();
         }
     };
@@ -63,16 +76,17 @@ private:
         size_t NUM_ELEMENTS;
         size_t NUM_THREADS;
         size_t NUM_THREADGROUPS;
+        size_t NUM_DATAPOINTS_PER_THREAD;
         size_t SIZE_DTYPE;
         size_t BYTES_FOR_ELEMENTS;
 
         void calculateSize() {
-            SIZE_DTYPE = sizeof(int);
             BYTES_FOR_ELEMENTS = NUM_ELEMENTS * SIZE_DTYPE;
         }
 
         // Constructor to automatically calculate bytes upon creation
         explicit CoreParamsForHost(size_t N) : NUM_ELEMENTS(N) {
+            SIZE_DTYPE = sizeof(float);
             calculateSize();
         }
     };

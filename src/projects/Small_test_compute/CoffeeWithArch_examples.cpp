@@ -4,26 +4,47 @@
 
 #include "CoffeeWithArch_examples.h"
 
-std::vector<int> CoffeeExample::getRandomVector(size_t size) {
-    std::vector<int> vec(size);
+std::vector<float> CoffeeExample::getRandomVector(size_t size) {
+    std::vector<float> vec(size);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 100);
+    std::uniform_real_distribution<> dis(0, 1.0);
 
     for (auto& el : vec) {
-        el = static_cast<int>(dis(gen));
+        el = static_cast<float>(dis(gen));
     }
 
     return vec;
 }
 
-void CoffeeExample::verifyResults(const std::vector<int> &inVecA, const std::vector<int> &inVecB,
-                                  const std::vector<int> &resultVec, const bool &printAnswer) {
+void CoffeeExample::verifyResultsAddition(const std::vector<float> &inVecA, const std::vector<float> &inVecB,
+                                  const std::vector<float> &resultVec, const bool &printAnswer) {
 
     for (size_t i = 0; i < inVecA.size(); ++i) {
         if (resultVec[i] != inVecA[i] + inVecB[i]) {
             std::cerr << "Verification failed at index " << i << ": " << resultVec[i] << " != " << inVecA[i] << " + "
             << inVecB[i] << std::endl;
+            throw std::runtime_error("Result verification failed.");
+        }
+
+        if (printAnswer)
+        {
+            std::cout << resultVec[i] << " = " << inVecA[i] << " + " << inVecB[i] << std::endl;
+        }
+    }
+}
+
+void CoffeeExample::verifyResultsSineAddition(const std::vector<float> &inVecA, const std::vector<float> &inVecB,
+                                  const std::vector<float> &resultVec, const bool &printAnswer) {
+
+    constexpr float epsilon = 0.000001;
+    for (size_t i = 0; i < inVecA.size(); ++i) {
+        float resultCpu = sin(inVecA[i] * inVecB[i]) + inVecA[i];
+        float diffCpuToGpu = resultCpu - resultVec[i];
+        if (fabs(diffCpuToGpu) >= epsilon) {
+            // Beyond acceptable range
+            std::cerr << "Verification failed at index " << i << " with diff " << diffCpuToGpu << " | " << resultVec[i] << " != sin(" << inVecA[i] << " * "
+            << inVecB[i] << ") + " << inVecA[i] << std::endl;
             throw std::runtime_error("Result verification failed.");
         }
 
@@ -68,12 +89,12 @@ void CoffeeExample::releaseResources() {
     device->release();
 }
 
-void CoffeeExample::processVectorAddition( const std::vector<int> &inA, const std::vector<int> &inB, std::vector<int> &outC ) {
+void CoffeeExample::processVectorAddition( const std::vector<float> &inA, const std::vector<float> &inB, std::vector<float> &outC ) {
     std::cout << "Made it to processVectorAddition" << std::endl;
 }
 
 
-void CoffeeExample::vectorAddition( const int &numElements, const std::string &kernelFunctionName,
+void CoffeeExample::vectorAddition( const float &numElements, const std::string &kernelFunctionName,
                                     const bool &fullDebug) {
 
     CoreParamsForHost hostCoreParams(numElements);
@@ -83,15 +104,22 @@ void CoffeeExample::vectorAddition( const int &numElements, const std::string &k
     gpuTimer.setName("Overall Timer (Vector Addition)(Shared Resources)");
     kernelTimer.setName("Kernel Timer (Vector Addition)(Shared Resources)");
 
+    // Original code
+    //auto vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    //auto vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+
     // Initialise random numbers in each array
-    auto vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    auto vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    std::vector<int> vec3(hostCoreParams.NUM_ELEMENTS);
+    if (vec1.empty() || vec1.size() != hostCoreParams.NUM_ELEMENTS)
+        vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    if  (vec2.empty() || vec2.size() != hostCoreParams.NUM_ELEMENTS)
+        vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+
+    std::vector<float> vec3(hostCoreParams.NUM_ELEMENTS);
 
     // Exclude costly vector population as this isn't part of the timings tests.
     gpuTimer.start(true);
 
-    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS);
+    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS, 1);
 
     if (FULL_DEBUG)
     {
@@ -167,7 +195,7 @@ void CoffeeExample::vectorAddition( const int &numElements, const std::string &k
     gpuTimer.print();
 
     // Check result for errors
-    verifyResults(vec1, vec2, vec3, false);
+    verifyResultsSineAddition(vec1, vec2, vec3, false);
 
     // Free memory on the device (GPU)
     bufferVec1->release();
@@ -178,7 +206,7 @@ void CoffeeExample::vectorAddition( const int &numElements, const std::string &k
     releaseResources();
 }
 
-void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, const std::string &kernelFunctionName,
+void CoffeeExample::vectorAdditionPrivateResources( const float &numElements, const std::string &kernelFunctionName,
                                     const bool &fullDebug) {
 
     CoreParamsForHost hostCoreParams(numElements);
@@ -190,14 +218,16 @@ void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, cons
 
 
     // Initialise random numbers in each array
-    auto vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    auto vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    std::vector<int> vec3(hostCoreParams.NUM_ELEMENTS);
+    if (vec1.empty() || vec1.size() != hostCoreParams.NUM_ELEMENTS)
+        vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    if  (vec2.empty() || vec2.size() != hostCoreParams.NUM_ELEMENTS)
+        vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    std::vector<float> vec3(hostCoreParams.NUM_ELEMENTS);
 
     // Exclude costly vector population as this isn't part of the timings tests.
     gpuTimer.start(true);
 
-    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS);
+    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS, 1);
 
     if (FULL_DEBUG)
     {
@@ -223,6 +253,7 @@ void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, cons
     // Copy data to shared buffers with data from the host (CPU)
     memcpy(bufferVec1Shared->contents(), vec1.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
     memcpy(bufferVec2Shared->contents(), vec2.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
 
     // Allocate private memory for the device
     auto bufferVec1Private = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModePrivate);
@@ -265,9 +296,6 @@ void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, cons
     computeCommandEncoder->setBuffer(bufferVec3, 0, 2);
     computeCommandEncoder->setBuffer(bufferCoreParameters, 0, 3);
 
-
-    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
-
     // Threads per block (1<<10 == 1024)
     hostCoreParams.NUM_THREADS = 1 << 10;
     if ( FULL_DEBUG && (hostCoreParams.NUM_THREADS > device->maxThreadsPerThreadgroup().height ) )
@@ -307,7 +335,7 @@ void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, cons
     gpuTimer.print();
 
     // Check result for errors
-    verifyResults(vec1, vec2, vec3, false);
+    verifyResultsSineAddition(vec1, vec2, vec3, false);
 
     // Free memory on the device (GPU)
     bufferVec1Private->release();
@@ -319,7 +347,7 @@ void CoffeeExample::vectorAdditionPrivateResources( const int &numElements, cons
     releaseResources();
 }
 
-void CoffeeExample::vectorAdditionManagedResources( const int &numElements, const std::string &kernelFunctionName,
+void CoffeeExample::vectorAdditionManagedResources( const float &numElements, const std::string &kernelFunctionName,
                                     const bool &fullDebug) {
 
     CoreParamsForHost hostCoreParams(numElements);
@@ -331,14 +359,16 @@ void CoffeeExample::vectorAdditionManagedResources( const int &numElements, cons
 
 
     // Initialise random numbers in each array
-    auto vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    auto vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
-    std::vector<int> vec3(hostCoreParams.NUM_ELEMENTS);
+    if (vec1.empty() || vec1.size() != hostCoreParams.NUM_ELEMENTS)
+        vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    if  (vec2.empty() || vec2.size() != hostCoreParams.NUM_ELEMENTS)
+        vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    std::vector<float> vec3(hostCoreParams.NUM_ELEMENTS);
 
     // Exclude costly vector population as this isn't part of the timings tests.
     gpuTimer.start(true);
 
-    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS);
+    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS, 1);
 
     if (FULL_DEBUG)
     {
@@ -364,6 +394,7 @@ void CoffeeExample::vectorAdditionManagedResources( const int &numElements, cons
     // Copy data directly into managed buffers
     memcpy(bufferVec1Managed->contents(), vec1.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
     memcpy(bufferVec2Managed->contents(), vec2.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
 
     // Synchronize managed buffers from CPU to GPU
     bufferVec1Managed->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
@@ -380,7 +411,6 @@ void CoffeeExample::vectorAdditionManagedResources( const int &numElements, cons
     computeCommandEncoder->setBuffer(bufferVec3, 0, 2);
     computeCommandEncoder->setBuffer(bufferCoreParameters, 0, 3);
 
-    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
 
     // Threads per block (1<<10 == 1024)
     hostCoreParams.NUM_THREADS = 1 << 10;
@@ -421,11 +451,251 @@ void CoffeeExample::vectorAdditionManagedResources( const int &numElements, cons
     gpuTimer.print();
 
     // Check result for errors
-    verifyResults(vec1, vec2, vec3, false);
+    verifyResultsSineAddition(vec1, vec2, vec3, false);
 
     // Free memory on the device (GPU)
     bufferVec1Managed->release();
     bufferVec2Managed->release();
+    bufferVec3->release();
+    bufferCoreParameters->release();
+
+    // Release all other resources
+    releaseResources();
+}
+
+void CoffeeExample::vectorAdditionFullyManagedResources( const float &numElements, const std::string &kernelFunctionName,
+                                    const bool &fullDebug) {
+
+    CoreParamsForHost hostCoreParams(numElements);
+    FULL_DEBUG = fullDebug;
+
+    Timer gpuTimer, kernelTimer;
+    gpuTimer.setName("Overall Timer (Vector Addition)(Fully Managed Resources)");
+    kernelTimer.setName("Kernel Timer (Vector Addition)(Fully Managed Resources)");
+
+    // Initialise random numbers in each array
+    if (vec1.empty() || vec1.size() != hostCoreParams.NUM_ELEMENTS)
+        vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    if  (vec2.empty() || vec2.size() != hostCoreParams.NUM_ELEMENTS)
+        vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    std::vector<float> vec3(hostCoreParams.NUM_ELEMENTS);
+
+    // Exclude costly vector population as this isn't part of the timings tests.
+    gpuTimer.start(true);
+
+    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS, 1);
+
+    if (FULL_DEBUG)
+    {
+        std::cout << "Elements in vectors. (vec1): " << vec1.size() << " | (vec2): " << vec2.size() << std::endl;
+    }
+
+    // Initialise Metal device, command queue, and pipeline
+    initialiseResources(kernelFunctionName);
+
+    // Allocate shared memory for the host and device
+    auto bufferVec1 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferVec2 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferVec3 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferCoreParameters = device->newBuffer(deviceCoreParams.bytes, MTL::ResourceStorageModeManaged);
+
+    // Error handling example for buffer creation
+    if ( !bufferVec1 || !bufferVec2 || !bufferVec3 || !bufferCoreParameters )
+    {
+        std::cerr << "Failed to create one or more shared buffers!" << std::endl;
+        std::exit(1);
+    }
+
+    // Copy data directly into managed buffers
+    memcpy(bufferVec1->contents(), vec1.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferVec2->contents(), vec2.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
+
+    // Synchronize managed buffers from CPU to GPU
+    bufferVec1->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+    bufferVec2->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+    bufferCoreParameters->didModifyRange(NS::Range::Make(0, deviceCoreParams.bytes));
+
+    // Encode commands
+    computeCommandBuffer = commandQueuePrimary->commandBuffer();
+    computeCommandEncoder = computeCommandBuffer->computeCommandEncoder();
+
+    computeCommandEncoder->setComputePipelineState(computePrimaryPipelineState);
+
+    computeCommandEncoder->setBuffer(bufferVec1, 0, 0);
+    computeCommandEncoder->setBuffer(bufferVec2, 0, 1);
+    computeCommandEncoder->setBuffer(bufferVec3, 0, 2);
+    computeCommandEncoder->setBuffer(bufferCoreParameters, 0, 3);
+
+    // Threads per block (1<<10 == 1024)
+    hostCoreParams.NUM_THREADS = 1 << 10;
+    if ( FULL_DEBUG && (hostCoreParams.NUM_THREADS > device->maxThreadsPerThreadgroup().height ) )
+    {
+        std::cout << "Attempted to set more threads per thread-group than device permits\n";
+        std::exit(1);
+    }
+    MTL::Size NUM_THREADS_PER_THREADGROUP = {hostCoreParams.NUM_THREADS, 1, 1};
+
+    // Blocks per Grid (padded as required)
+    hostCoreParams.NUM_THREADGROUPS = (hostCoreParams.NUM_ELEMENTS + hostCoreParams.NUM_THREADS - 1) / hostCoreParams.NUM_THREADS;
+    MTL::Size NUM_THREADGROUPS_PER_GRID = {hostCoreParams.NUM_THREADGROUPS, 1, 1};
+
+    // Inform the kernel of the layout of the threads (similar to <<<NUM_BLOCKS, NUM_THREADS>>> in CUDA
+    computeCommandEncoder->dispatchThreadgroups(NUM_THREADGROUPS_PER_GRID, NUM_THREADS_PER_THREADGROUP);
+
+    // Finalise encoding
+    computeCommandEncoder->endEncoding();
+
+    kernelTimer.start(true);
+
+    // Asynchronously submit the command buffer containing the kernel to the device (GPU)
+    //commandBuffer->GPUStartTime()
+    std::cout << std::endl;
+    computeCommandBuffer->commit();
+
+    // Ensure synchronisation is explicitly managed (don't want to rely on memcpy for now)
+    computeCommandBuffer->waitUntilCompleted();
+    kernelTimer.stop();
+    kernelTimer.print();
+
+    // Inform host of changes made to the output buffer by the device
+    bufferVec3->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+
+    // Copy sum vector from device to host (GPU -> CPU)
+    memcpy(vec3.data(), bufferVec3->contents(), hostCoreParams.BYTES_FOR_ELEMENTS);
+
+    // No need to time checking results; not part of test
+    gpuTimer.stop();
+    gpuTimer.print();
+
+    // Check result for errors
+    verifyResultsSineAddition(vec1, vec2, vec3, false);
+
+    // Free memory on the device (GPU)
+    bufferVec1->release();
+    bufferVec2->release();
+    bufferVec3->release();
+    bufferCoreParameters->release();
+
+    // Release all other resources
+    releaseResources();
+}
+
+void CoffeeExample::vectorAdditionAsyncBuffers( const float &numElements, const std::string &kernelFunctionName,
+                                    const bool &fullDebug) {
+
+    CoreParamsForHost hostCoreParams(numElements);
+    // Number of elements for each thread to compute
+    hostCoreParams.NUM_DATAPOINTS_PER_THREAD = 8;
+
+    FULL_DEBUG = fullDebug;
+
+    Timer gpuTimer, kernelTimer;
+    gpuTimer.setName("Overall Timer (Vector Addition)(Async Buffers)");
+    kernelTimer.setName("Kernel Timer (Vector Addition)(Async Buffers)");
+
+    // Initialise random numbers in each array
+    if (vec1.empty() || vec1.size() != hostCoreParams.NUM_ELEMENTS)
+        vec1 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    if  (vec2.empty() || vec2.size() != hostCoreParams.NUM_ELEMENTS)
+        vec2 = getRandomVector(hostCoreParams.NUM_ELEMENTS);
+    std::vector<float> vec3(hostCoreParams.NUM_ELEMENTS);
+
+    // Exclude costly vector population as this isn't part of the timings tests.
+    gpuTimer.start(true);
+
+    CoreParamsForDevice deviceCoreParams(hostCoreParams.NUM_ELEMENTS, hostCoreParams.NUM_DATAPOINTS_PER_THREAD);
+
+    if (FULL_DEBUG)
+    {
+        std::cout << "Elements in vectors. (vec1): " << vec1.size() << " | (vec2): " << vec2.size() << std::endl;
+    }
+
+    // Initialise Metal device, command queue, and pipeline
+    initialiseResources(kernelFunctionName);
+
+    // Allocate shared memory for the host and device
+    auto bufferVec1 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferVec2 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferVec3 = device->newBuffer(hostCoreParams.BYTES_FOR_ELEMENTS, MTL::ResourceStorageModeManaged);
+    auto bufferCoreParameters = device->newBuffer(deviceCoreParams.bytes, MTL::ResourceStorageModeManaged);
+
+    // Error handling example for buffer creation
+    if ( !bufferVec1 || !bufferVec2 || !bufferVec3 || !bufferCoreParameters )
+    {
+        std::cerr << "Failed to create one or more shared buffers!" << std::endl;
+        std::exit(1);
+    }
+
+    // Copy data directly into managed buffers
+    memcpy(bufferVec1->contents(), vec1.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferVec2->contents(), vec2.data(), hostCoreParams.BYTES_FOR_ELEMENTS);
+    memcpy(bufferCoreParameters->contents(), &deviceCoreParams, deviceCoreParams.bytes);
+
+    // Synchronize managed buffers from CPU to GPU
+    bufferVec1->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+    bufferVec2->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+    bufferCoreParameters->didModifyRange(NS::Range::Make(0, deviceCoreParams.bytes));
+
+    // Encode commands
+    computeCommandBuffer = commandQueuePrimary->commandBuffer();
+    computeCommandEncoder = computeCommandBuffer->computeCommandEncoder();
+
+    computeCommandEncoder->setComputePipelineState(computePrimaryPipelineState);
+
+    computeCommandEncoder->setBuffer(bufferVec1, 0, 0);
+    computeCommandEncoder->setBuffer(bufferVec2, 0, 1);
+    computeCommandEncoder->setBuffer(bufferVec3, 0, 2);
+    computeCommandEncoder->setBuffer(bufferCoreParameters, 0, 3);
+
+    // Threads per block (1<<10 == 1024)
+    hostCoreParams.NUM_THREADS = 1 << 10;
+    if ( FULL_DEBUG && (hostCoreParams.NUM_THREADS > device->maxThreadsPerThreadgroup().height ) )
+    {
+        std::cout << "Attempted to set more threads per thread-group than device permits\n";
+        std::exit(1);
+    }
+    MTL::Size NUM_THREADS_PER_THREADGROUP = {hostCoreParams.NUM_THREADS, 1, 1};
+    MTL::Size NUM_THREADS_PER_GRID = {hostCoreParams.NUM_ELEMENTS / hostCoreParams.NUM_DATAPOINTS_PER_THREAD, 1, 1};
+
+    // Blocks per Grid (padded as required)
+    hostCoreParams.NUM_THREADGROUPS = ((hostCoreParams.NUM_ELEMENTS / hostCoreParams.NUM_DATAPOINTS_PER_THREAD) + hostCoreParams.NUM_THREADS - 1) / hostCoreParams.NUM_THREADS;
+    MTL::Size NUM_THREADGROUPS_PER_GRID = {hostCoreParams.NUM_THREADGROUPS, 1, 1};
+
+    // Inform the kernel of the layout of the threads (similar to <<<NUM_BLOCKS, NUM_THREADS>>> in CUDA
+    //computeCommandEncoder->dispatchThreadgroups(NUM_THREADGROUPS_PER_GRID, NUM_THREADS_PER_THREADGROUP);
+    computeCommandEncoder->dispatchThreads(NUM_THREADS_PER_GRID, NUM_THREADS_PER_THREADGROUP);
+    // Finalise encoding
+    computeCommandEncoder->endEncoding();
+
+    kernelTimer.start(true);
+
+    // Asynchronously submit the command buffer containing the kernel to the device (GPU)
+    //commandBuffer->GPUStartTime()
+    std::cout << std::endl;
+    computeCommandBuffer->commit();
+
+    // Ensure synchronisation is explicitly managed (don't want to rely on memcpy for now)
+    computeCommandBuffer->waitUntilCompleted();
+    kernelTimer.stop();
+    kernelTimer.print();
+
+    // Inform host of changes made to the output buffer by the device
+    bufferVec3->didModifyRange(NS::Range::Make(0, hostCoreParams.BYTES_FOR_ELEMENTS));
+
+    // Copy sum vector from device to host (GPU -> CPU)
+    memcpy(vec3.data(), bufferVec3->contents(), hostCoreParams.BYTES_FOR_ELEMENTS);
+
+    // No need to time checking results; not part of test
+    gpuTimer.stop();
+    gpuTimer.print();
+
+    // Check result for errors
+    verifyResultsSineAddition(vec1, vec2, vec3, false);
+
+    // Free memory on the device (GPU)
+    bufferVec1->release();
+    bufferVec2->release();
     bufferVec3->release();
     bufferCoreParameters->release();
 

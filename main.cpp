@@ -82,11 +82,11 @@ void compareSumOfResults(const std::vector<float>& resultGPU, const std::vector<
 
 int main() {
     // DeviceChecks::checkForDevice();
-    DeviceChecks::printDeviceInfo();
+    // DeviceChecks::printDeviceInfo();
     // GraphicalExamples::generateSquare();
 
-    int N = 1 << 28;
-    std::string functionName = "simpleVectorAdd";
+    int N = 1 << 27;
+    std::string functionName = "simpleVectorSineAdd";
     bool useDebug = false;
 
     CoffeeExample coffeeExample{};
@@ -94,6 +94,9 @@ int main() {
     coffeeExample.vectorAddition(N, functionName, useDebug);
     coffeeExample.vectorAdditionPrivateResources(N, functionName, useDebug);
     coffeeExample.vectorAdditionManagedResources(N, functionName, useDebug);
+    coffeeExample.vectorAdditionFullyManagedResources(N, functionName, useDebug);
+    coffeeExample.vectorAdditionAsyncBuffers(N, "unrollVectorAdd", useDebug);
+
 
 
     // Written explicitly so I can check the results by hand. Keep below 1 billion elements without chunking!

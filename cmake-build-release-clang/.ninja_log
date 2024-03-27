@@ -55,3 +55,10 @@
 707	794	1711561612488131243	hello_metal	6d7181ad8ecdb35d
 4	486	1711561620295086903	CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp.o	8a3e6010e6c8a609
 486	579	1711561620389400638	hello_metal	6d7181ad8ecdb35d
+8	273	1711578962477088932	coffeewitharch_examples.air	8cfee77bdef1f7d8
+8	273	1711578962477088932	/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.air	8cfee77bdef1f7d8
+273	364	1711578962568218521	coffeewitharch_examples.metallib	5646ba45427337a5
+273	364	1711578962568218521	/Users/cameronmceleney/CLionProjects/hello_metal/cmake-build-release-clang/coffeewitharch_examples.metallib	5646ba45427337a5
+364	1241	1711578963441714442	CMakeFiles/hello_metal.dir/src/projects/Small_test_compute/CoffeeWithArch_examples.cpp.o	8a3e6010e6c8a609
+364	1364	1711578963565495821	CMakeFiles/hello_metal.dir/main.cpp.o	d4f0d3d4db2dca9e
+1365	1473	1711578963676104223	hello_metal	6d7181ad8ecdb35d
