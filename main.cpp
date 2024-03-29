@@ -86,18 +86,23 @@ int main() {
     // GraphicalExamples::generateSquare();
 
     int N = 1 << 27;
+
     std::string functionName = "simpleVectorSineAdd";
     bool useDebug = false;
 
+    // Simple examples
     CoffeeExample coffeeExample{};
+    // coffeeExample.vectorAddition(N, functionName, useDebug);
+    //coffeeExample.vectorAdditionPrivateResources(N, functionName, useDebug);
+    // coffeeExample.vectorAdditionManagedResources(N, functionName, useDebug);
+    // coffeeExample.vectorAdditionFullyManagedResources(N, functionName, useDebug);
 
-    coffeeExample.vectorAddition(N, functionName, useDebug);
-    coffeeExample.vectorAdditionPrivateResources(N, functionName, useDebug);
-    coffeeExample.vectorAdditionManagedResources(N, functionName, useDebug);
-    coffeeExample.vectorAdditionFullyManagedResources(N, functionName, useDebug);
-    coffeeExample.vectorAdditionAsyncBuffers(N, "unrollVectorAdd", useDebug);
+    // Async examples
+    CoffeeExampleAsync coffeeExampleAsync{};
 
-
+    //coffeeExampleAsync.vectorAdditionHeaps(N, "unrollVectorAddAsync", useDebug);
+    //coffeeExampleAsync.vectorAdditionOptimisedCaches(N, "unrollVectorAddAsync", useDebug);
+    coffeeExampleAsync.vectorAdditionOptimisedCaches(N, "unrollVectorAsyncPad", useDebug);
 
     // Written explicitly so I can check the results by hand. Keep below 1 billion elements without chunking!
     /*
